@@ -8,6 +8,8 @@ from myOneLesson import oneLesson
 
 class xidianClassShedule(object):
     '''
+    西电课程表类
+    
     暂时只做课表相关的应用
     因为有了这个ehall的cookies，大部分功能都能实现。
     到时候需要什么就再加吧
