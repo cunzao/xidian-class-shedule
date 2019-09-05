@@ -8,7 +8,7 @@
 
 因为我电的课表实在让人凌乱，上课随周数而变化，有时候这周这门课没课，有时候那门课没课，实在让人琢磨不透，然后手机端也没有可以查看课表的APP，只能看截图，所以萌生了制作这个脚本的想法，花费了半天解析课程表，花费了一天模拟登陆，最后完成了这个脚本的初代！代码写的就跟那个啥一样=-=
 
-### 本脚本用法
+### 脚本用法
 
 新建一个文件夹存放本脚本
 
@@ -37,8 +37,8 @@ git clone https://github.com/cunzao/xidian-class-shedule.git
 然后在窗口输入：
 
 ```shell
-python login.py # python2
-python3 login.py # python3
+python index.py # python2
+python3 index.py # python3
 ```
 
 以上两个命令根据自己的环境输入。
@@ -85,6 +85,38 @@ python3 login.py # python3
 
 ![1567593250284](images/1567593250284.png)
 
+
+
+### 脚本文件介绍
+
+总共有四个程序文件：
+
+**index.py**
+
+程序的入口类，用于调用整个程序，使程序运行
+
+**CZuser.py**
+
+包含一个czUser类，关于用户的账号操作都在里面，即登录
+
+**CZHeaders.py**
+
+发送数据请求的文件头都被包括在这个类中
+
+**XIDIANClassShedule.py**
+
+课程表类，包括以下功能：获取课程表信息、读取本地课程表信息、课程信息存储到本地、生成课程表的ICS文件
+
+
+
 ### 最后
 
-因为是初代版本，难免会有BUG，提ISSUE，PULL REQUEST都可以让我知道问题！祝一切顺利！
+~~因为是初代版本，~~难免会有BUG，提ISSUE，PULL REQUEST都可以让我知道问题！祝一切顺利！
+
+
+
+### 日志
+
+2019年9月5日 17点11分
+
+对整体程序进行重构
