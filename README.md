@@ -111,7 +111,7 @@ python3 index.py # python3
 
 ### 最后
 
-~~因为是初代版本，~~难免会有BUG，提ISSUE，PULL REQUEST都可以让我知道问题！祝一切顺利！
+~~因为是初代版本~~，难免会有BUG，提ISSUE，PULL REQUEST都可以让我知道问题！祝一切顺利！
 
 
 
