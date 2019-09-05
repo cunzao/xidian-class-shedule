@@ -89,7 +89,7 @@ python3 index.py # python3
 
 ### 脚本文件介绍
 
-总共有四个程序文件：
+总共有五个程序文件：
 
 **index.py**
 
@@ -106,6 +106,10 @@ python3 index.py # python3
 **XIDIANClassShedule.py**
 
 课程表类，包括以下功能：获取课程表信息、读取本地课程表信息、课程信息存储到本地、生成课程表的ICS文件
+
+**myOneLesson.py**
+
+将一节课封装成类，用于处理一节课的课程信息
 
 
 
