@@ -3,6 +3,7 @@ import datetime
 import time
 import uuid
 from ics import Calendar, Event
+from settings import czSettings
 
 class oneLesson(object):
     '''
@@ -31,8 +32,11 @@ class oneLesson(object):
     __weeks = 0 # 第几周
     __startTime = "" # 课程开始的具体时间
     __endTime = "" # 课程结束的具体时间
+
+    __settings = None
     
-    __startTimeOfThisTerm = time.mktime(time.strptime("2019/09/02 00:00", "%Y/%m/%d %H:%M")) #学期第一节课的开始时间，时间戳的格式
+    # __startTimeOfThisTerm = time.mktime(time.strptime("2019/09/02 00:00", "%Y/%m/%d %H:%M")) # 本学期正式开始第一节课的时间，时间戳的格式
+    __startTimeOfThisTerm = None
     __oneLessonTime = 60*15
     __oneDayShedule = {
         "1": 30600, # 510,  "08:30",
@@ -47,9 +51,11 @@ class oneLesson(object):
         "10": 72900, # 1215,  "20:15",
         "11": 75600, # 1260,  "21:00",
     }
-    __boundaryLine = 1569859200
+    __monthOfDST = ['05','06','07','08','09'] # 夏令时月份列表
     
     def __init__(self, weeks:int, oneClassSheduleJson):
+        self.__settings = czSettings()
+        self.__startTimeOfThisTerm = time.mktime(time.strptime(self.__settings.getStartTimeOfThisTerm(), "%Y/%m/%d %H:%M"))
         self.oneLessonID = oneClassSheduleJson["KCDM"]
         self.nameOfTheLesson = oneClassSheduleJson["KCMC"]
         self.dayOfTheWeek = oneClassSheduleJson["XQ"]
@@ -58,7 +64,7 @@ class oneLesson(object):
         self.numOfWeeks = oneClassSheduleJson["ZCMC"]
         self.teacherNameOfTheLesson = oneClassSheduleJson["JSXM"]
         self.weeks = weeks
-        print("初始化完成！")
+        # print("初始化完成！")
     
     @property
     def oneLessonID(self):
@@ -66,7 +72,7 @@ class oneLesson(object):
     
     @oneLessonID.setter
     def oneLessonID(self,value:str):
-        print("oneLessonID的值改变，从 {} 变到 {}".format(self.__oneLessonID,value))
+        # print("oneLessonID的值改变，从 {} 变到 {}".format(self.__oneLessonID,value))
         self.__oneLessonID = value
         
     @property
@@ -75,7 +81,7 @@ class oneLesson(object):
     
     @nameOfTheLesson.setter
     def nameOfTheLesson(self, value:str):
-        print("nameOfTheLesson，从 {} 变到 {}".format(self.__nameOfTheLesson,value))
+        # print("nameOfTheLesson，从 {} 变到 {}".format(self.__nameOfTheLesson,value))
         self.__nameOfTheLesson = value
         
     @property
@@ -84,7 +90,7 @@ class oneLesson(object):
     
     @dayOfTheWeek.setter
     def dayOfTheWeek(self, value:int):
-        print("dayOfTheWeek，从 {} 变到 {}".format(self.__dayOfTheWeek,value))
+        # print("dayOfTheWeek，从 {} 变到 {}".format(self.__dayOfTheWeek,value))
         self.__dayOfTheWeek = value
         
     @property
@@ -93,7 +99,7 @@ class oneLesson(object):
     
     @numOfTheLesson.setter
     def numOfTheLesson(self, value:int):
-        print("numOfTheLesson，从 {} 变到 {}".format(self.__numOfTheLesson,value))
+        # print("numOfTheLesson，从 {} 变到 {}".format(self.__numOfTheLesson,value))
         self.__numOfTheLesson = value
         
     @property
@@ -102,7 +108,7 @@ class oneLesson(object):
     
     @addressOfTheLesson.setter
     def addressOfTheLesson(self, value:str):
-        print("addressOfTheLesson，从 {} 变到 {}".format(self.__addressOfTheLesson,value))
+        # print("addressOfTheLesson，从 {} 变到 {}".format(self.__addressOfTheLesson,value))
         self.__addressOfTheLesson = value
         
     @property
@@ -111,7 +117,7 @@ class oneLesson(object):
     
     @numOfWeeks.setter
     def numOfWeeks(self, value:int):
-        print("numOfWeeks，从 {} 变到 {}".format(self.__numOfWeeks,value))
+        # print("numOfWeeks，从 {} 变到 {}".format(self.__numOfWeeks,value))
         self.__numOfWeeks = value
         
     @property
@@ -120,7 +126,7 @@ class oneLesson(object):
     
     @teacherNameOfTheLesson.setter
     def teacherNameOfTheLesson(self, value:str):
-        print("teacherNameOfTheLesson，从 {} 变到 {}".format(self.__teacherNameOfTheLesson,value))
+        # print("teacherNameOfTheLesson，从 {} 变到 {}".format(self.__teacherNameOfTheLesson,value))
         self.__teacherNameOfTheLesson = value
         
     @property
@@ -129,7 +135,7 @@ class oneLesson(object):
     
     @weeks.setter
     def weeks(self, value):
-        print("weeks，从 {} 变到 {}".format(self.__weeks,value))
+        # print("weeks，从 {} 变到 {}".format(self.__weeks,value))
         self.__weeks = value
     
     @property
@@ -144,10 +150,10 @@ class oneLesson(object):
         冬令时的时候下午的时间会比夏令时晚30分钟
         '''  
         thisDayTimeStamp = self.__startTimeOfThisTerm + (self.weeks-2)*(7*24*3600) + (self.dayOfTheWeek - 1)*(24*3600) + self.__oneDayShedule[str(self.numOfTheLesson)] - 8*3600
-        if(self.numOfTheLesson >= 5 and self.__boundaryLine <= thisDayTimeStamp):
+        if(self.numOfTheLesson >= 5 and datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")[5:7] not in self.__monthOfDST):
             thisDayTimeStamp -= 30*60
         thisDayDatetime = datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")
-        print(thisDayDatetime)
+        # print(thisDayDatetime)
         return thisDayDatetime
     
     @property
@@ -156,7 +162,7 @@ class oneLesson(object):
         相比起开始时间，结束时间晚了45分钟
         '''
         thisDayTimeStamp = self.__startTimeOfThisTerm + (self.weeks-2)*(7*24*3600) + (self.dayOfTheWeek - 1)*(24*3600) + 45*60 + self.__oneDayShedule[str(self.numOfTheLesson)] - 8*3600
-        if(self.numOfTheLesson >= 5 and self.__boundaryLine <= thisDayTimeStamp):
+        if(self.numOfTheLesson >= 5 and datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")[5:7] not in self.__monthOfDST):
             thisDayTimeStamp -= 30*60
         thisDayDatetime = datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")
         return thisDayDatetime

@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 from ics import Calendar, Event
 from myOneLesson import oneLesson
+from settings import czSettings
 
 class xidianClassShedule(object):
     '''
@@ -21,6 +22,7 @@ class xidianClassShedule(object):
     __czUser = None
     __headers = None
     __classSheduleJson = None
+    __settings = None
     __getClassSheduleJsonURL = "http://ehall.xidian.edu.cn/gsapp/sys/wdkbapp/modules/xskcb/xspkjgcx.do"
     __lessons = None
     
@@ -28,20 +30,21 @@ class xidianClassShedule(object):
     def __init__(self, user, header):
         self.__czUser = user
         self.__headers = header
+        self.__settings = czSettings()
         
     def getClassSheduleJson(self):
         '''
         发送请求获取课程表的Json
         '''
         getClassSheduleJsonContents = {
-            'XNXQDM': '20191',
+            'XNXQDM': self.__settings.getXNXQDM(), # '20192', # 学期代码
             'XH': ''
         }
         getClassSheduleJsonHeaders = self.__headers.ehallWdkbappBehindHeaders
         reqS = self.__czUser.getReqS() # 我原以为是通过辨认cookies进行权限控制，实验才发现是session
         getClassSheduleJsonRequest = reqS.post(self.__getClassSheduleJsonURL, data=getClassSheduleJsonContents, headers = getClassSheduleJsonHeaders, allow_redirects=False,cookies=self.__czUser.czCookies)
         self.__classSheduleJson = getClassSheduleJsonRequest.json()
-        print(self.__classSheduleJson)
+        # print(self.__classSheduleJson)
         
     def saveClassSheduleJson(self):
         '''
@@ -62,14 +65,14 @@ class xidianClassShedule(object):
             print("你都没读取本地json，调用readLeasonsInFile()函数读取吧！")
             return
         c = Calendar()
-        for week in range(1,18):
+        for week in range(1, self.__settings.getTotalWeeks()):
             for aLesson in self.__lessons:
                 if(self.__canBeAdd(week, aLesson["ZCMC"])):
                     aClass = oneLesson(weeks=week, oneClassSheduleJson=aLesson)
                     c.events.add(aClass.oneLessonToIcsEvent())
         with open('{}.ics'.format(self.__czUser.czUserClassName), 'w', encoding='utf-8') as my_file:
             my_file.writelines(c)
-        print("导出完成！")
+        print("课程表ICS文件导出完成！")
         
     def readLeasonsInFile(self):
         '''
@@ -90,7 +93,7 @@ class xidianClassShedule(object):
         weeksArray = []
         if("周" in i):
             if("双周" in i):
-                print(i,'双周')
+                # print(i,'双周')
                 ccc = i[:-2].split("-")
                 startWeek = ccc[0]
                 endWeek = ccc[1]
@@ -98,7 +101,7 @@ class xidianClassShedule(object):
                     if(j%2 == 0):
                         weeksArray.append(j)
             elif("单周" in i):
-                print(i,'单周')
+                # print(i,'单周')
                 ccc = i[:-2].split("-")
                 startWeek = ccc[0]
                 endWeek = ccc[1]
@@ -107,14 +110,14 @@ class xidianClassShedule(object):
                         weeksArray.append(j)
             else:
                 if("-" in i):
-                    print(i,'    1')
+                    # print(i,'    1')
                     ccc = i[:-1].split("-")
                     startWeek = ccc[0]
                     endWeek = ccc[1]
                     for j in range(int(startWeek), int(endWeek)+1):
                         weeksArray.append(j)
                 else:
-                    print(i,'   2')
+                    # print(i,'   2')
                     weeksArray.append(int(i[:-1]))
         else:
             if("-" in i):

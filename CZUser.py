@@ -3,6 +3,7 @@ import traceback
 import json
 from bs4 import BeautifulSoup
 from CZHeaders import czHeaders
+from settings import czSettings
 
 class czUser(object):
     '''
@@ -16,9 +17,12 @@ class czUser(object):
     __headers = czHeaders()
     __URLs = None
     __reqS = requests.session()
+    __settings = None
     __configPath = "config.json"
     
     def __init__(self):
+        self.__settings = czSettings()
+        self.__configPath = self.__settings.getConfigPath()
         try:
             configFile = open(self.__configPath, 'r', encoding="utf-8")
             config = json.load(configFile)
