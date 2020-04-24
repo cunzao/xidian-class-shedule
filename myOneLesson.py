@@ -43,13 +43,13 @@ class oneLesson(object):
         "2": 33600, # 560,  "09:20",
         "3": 37500, # 625,  "10:25",
         "4": 40500, # 675,  "11:15",
-        "5": 52200, # 870,  "14:30",
-        "6": 55200, # 920,  "15:20",
-        "7": 58500, # 975,  "16:15",
-        "8": 61500, # 1025,  "17:05",
-        "9": 70200, # 1170,  "19:30",
-        "10": 72900, # 1215,  "20:15",
-        "11": 75600, # 1260,  "21:00",
+        "5": 50400, # 840,  "14:00",
+        "6": 53400, # 890,  "14:50",
+        "7": 57300, # 955,  "15:55",
+        "8": 60300, # 1005,  "16:45",
+        "9": 68400, # 1140,  "19:00",
+        "10": 71400, # 1190,  "19:50",
+        "11": 74400, # 1240,  "20:40",
     }
     __monthOfDST = ['05','06','07','08','09'] # 夏令时月份列表
     
@@ -150,8 +150,8 @@ class oneLesson(object):
         冬令时的时候下午的时间会比夏令时晚30分钟
         '''  
         thisDayTimeStamp = self.__startTimeOfThisTerm + (self.weeks-2)*(7*24*3600) + (self.dayOfTheWeek - 1)*(24*3600) + self.__oneDayShedule[str(self.numOfTheLesson)] - 8*3600
-        if(self.numOfTheLesson >= 5 and datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")[5:7] not in self.__monthOfDST):
-            thisDayTimeStamp -= 30*60
+        if(self.numOfTheLesson >= 5 and datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")[5:7] not in self.__monthOfDST and self.__settings.getNeedDST()):
+            thisDayTimeStamp += 30*60
         thisDayDatetime = datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")
         # print(thisDayDatetime)
         return thisDayDatetime
@@ -162,8 +162,8 @@ class oneLesson(object):
         相比起开始时间，结束时间晚了45分钟
         '''
         thisDayTimeStamp = self.__startTimeOfThisTerm + (self.weeks-2)*(7*24*3600) + (self.dayOfTheWeek - 1)*(24*3600) + 45*60 + self.__oneDayShedule[str(self.numOfTheLesson)] - 8*3600
-        if(self.numOfTheLesson >= 5 and datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")[5:7] not in self.__monthOfDST):
-            thisDayTimeStamp -= 30*60
+        if(self.numOfTheLesson >= 5 and datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")[5:7] not in self.__monthOfDST and self.__settings.getNeedDST()):
+            thisDayTimeStamp += 30*60
         thisDayDatetime = datetime.datetime.strftime(datetime.datetime.fromtimestamp(thisDayTimeStamp), "%Y-%m-%d %H:%M:%S")
         return thisDayDatetime
     
