@@ -20,6 +20,8 @@
 pip install requests
 pip install beautifulsoup4
 pip install ics
+pip install cryptodemo
+pip install cryptography
 
 git clone https://github.com/cunzao/xidian-class-shedule.git
 ```
@@ -124,3 +126,11 @@ python3 index.py # python3
 2019年9月5日 17点11分
 
 对整体程序进行重构
+
+
+
+2020年10月26日 16点47分
+
+1. 针对学校的密码加密，进行相应的加密
+
+2. 针对本学期的时间调整相关的参数

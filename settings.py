@@ -4,9 +4,9 @@ class czSettings(object):
     '''
     _instance = None
     __configPath = 'config.json'
-    __startTimeOfThisTerm = '2020/02/24 00:00' # 本学期正式开始第一节课的时间，时间戳的格式
+    __startTimeOfThisTerm = '2020/08/31 00:00' # 本学期正式开始第一节课的时间，时间戳的格式
     __totalWeeks = 20 # 这学期最长多少周
-    __XNXQDM = '20192' # 'XNXQDM': '20192', # 学期代码
+    __XNXQDM = '20201' # 'XNXQDM': '20192', # 学期代码
     __needDST = False # 是否需要夏令时
 
     def __new__(cls, *args, **kw):

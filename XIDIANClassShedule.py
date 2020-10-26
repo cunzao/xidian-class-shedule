@@ -50,7 +50,7 @@ class xidianClassShedule(object):
         '''
         保存课程表Json到本地文件
         '''
-        jsonFile = open("{}.json".format(self.__czUser.czUserClassName),'w',encoding="utf-8")
+        jsonFile = open("./output/{}.json".format(self.__czUser.czUserClassName),'w',encoding="utf-8")
         json.dump(self.__classSheduleJson, jsonFile, ensure_ascii=False)
         jsonFile.close()
         print("{}.json文件保存成功！".format(self.__czUser.czUserClassName))
@@ -70,7 +70,7 @@ class xidianClassShedule(object):
                 if(self.__canBeAdd(week, aLesson["ZCMC"])):
                     aClass = oneLesson(weeks=week, oneClassSheduleJson=aLesson)
                     c.events.add(aClass.oneLessonToIcsEvent())
-        with open('{}.ics'.format(self.__czUser.czUserClassName), 'w', encoding='utf-8') as my_file:
+        with open('./output/{}.ics'.format(self.__czUser.czUserClassName), 'w', encoding='utf-8') as my_file:
             my_file.writelines(c)
         print("课程表ICS文件导出完成！")
         
@@ -78,7 +78,7 @@ class xidianClassShedule(object):
         '''
         读取保存在本地的json文件
         '''
-        ClassSheduleJsonFile = open("{}.json".format(self.__czUser.czUserClassName), 'r', encoding='utf-8')
+        ClassSheduleJsonFile = open("./output/{}.json".format(self.__czUser.czUserClassName), 'r', encoding='utf-8')
         self.__classSheduleJson = json.load(ClassSheduleJsonFile)
         ClassSheduleJsonFile.close()
         # kcbSize = fullKcbJson["datas"]["xspkjgcx"]["totalSize"]

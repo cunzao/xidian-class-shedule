@@ -1,9 +1,16 @@
 import requests
 import traceback
 import json
+import re
 from bs4 import BeautifulSoup
 from CZHeaders import czHeaders
 from settings import czSettings
+from Crypto.Cipher import AES
+from binascii import b2a_hex, a2b_hex
+import random
+import base64
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.ciphers import algorithms
 
 class czUser(object):
     '''
@@ -13,6 +20,7 @@ class czUser(object):
     __czCookies = None
     __stuNum = ""
     __passWord = ""
+    __pwdDefaultEncryptSalt = "iOmFc10bomgIw9ve"
     __czUserClassName = ""
     __headers = czHeaders()
     __URLs = None
@@ -48,7 +56,7 @@ class czUser(object):
         更改__czCookies 的 = 操作，将替换改为更新
         '''
         for i in cookiesJar:
-            print("czCookies增加：{}={}".format(i.name,i.value))
+            # print("czCookies增加：{}={}".format(i.name,i.value))
             self.__czCookies.set(i.name,i.value)
         print("本次更新后的cookies：{}".format(self.czCookies))
         
@@ -65,6 +73,12 @@ class czUser(object):
         idsLoginGetHeaders = self.__headers.idsLoginGetHeaders
         idsLoginGetRequst = self.__reqS.get(idsLoginGetURL,headers=idsLoginGetHeaders)
         idsLoginGetSoup = BeautifulSoup(idsLoginGetRequst.content,"html.parser")
+        ids_script = idsLoginGetSoup.find_all("script", {'type': 'text/javascript'})
+        for temp_script in ids_script:
+            temp_str = str(temp_script.string)
+            if "pwdDefaultEncryptSalt" in temp_str:
+                self.__pwdDefaultEncryptSalt = temp_str.split("=")[-1].split("\"")[1]
+                # print(self.__pwdDefaultEncryptSalt)
         idsLoginPostTickets = idsLoginGetSoup.find('input', attrs={'name': 'lt'}).get('value')
         idsLoginPostExecution = idsLoginGetSoup.find('input', attrs={'name': 'execution'}).get('value')
         self.__czCookies = idsLoginGetRequst.cookies
@@ -80,18 +94,21 @@ class czUser(object):
         idsLoginPostTickets, idsLoginPostExecution = tickets, execution
         idsLoginPostHeaders = self.__headers.idsLoginPostHeaders
         idsLoginPostURL = self.__URLs["idsLoginURL"]
+        encrypted_password = self.encrypt(self.__passWord)
         idsLoginPostContents = {
             "username":  self.__stuNum,
-            "password":  self.__passWord,
-            "submit": '',
+            "password":  encrypted_password,
             "lt": idsLoginPostTickets,# LT-330234-kJqWCnrzjjbvZWCVTCde***************
             "execution": idsLoginPostExecution,
             "_eventId": "submit",
+            "dllt": "userNamePasswordLogin",
+            "captchaResponse": "",
             "rmShown": "1"
         }
         idsLoginPostRequst = self.__reqS.post(idsLoginPostURL, data=idsLoginPostContents, headers = idsLoginPostHeaders, cookies=self.__czCookies)
-        print("idsLoginPostRequst的状态码：{}".format(idsLoginPostRequst.status_code))
-        
+        # print("idsLoginPostRequst的状态码：{} {}".format(idsLoginPostRequst.status_code, idsLoginPostRequst.headers))
+        # print("password：{} salt:{} password:{}".format(encrypted_password, self.__pwdDefaultEncryptSalt, self.__passWord))
+
     def __getTrueCookies(self):
         '''
         cookies授权过程涉及多次跳转，每次跳转都操作类似但又不可缺少
@@ -109,7 +126,8 @@ class czUser(object):
         firstRedirectHeaders = self.__headers.idsLoginGetHeaders
         firstRedirectRequst = self.__reqS.get(firstRedirectURL, headers=firstRedirectHeaders, allow_redirects=False, cookies=self.__czCookies)
         self.czCookies =  firstRedirectRequst.cookies
-        
+        # print(firstRedirectRequst.headers)
+
         secondRedirectURL = firstRedirectRequst.headers['Location']
         secondRedirectHeaders = self.__headers.ehallWdkbappBehindHeaders
         secondRedirectrequest = self.__reqS.get(secondRedirectURL, headers=secondRedirectHeaders, allow_redirects=False, cookies=self.__czCookies)
@@ -137,5 +155,45 @@ class czUser(object):
     
     def login(self):
         idsLoginPostTickets,idsLoginPostExecution = self.__idsLoginGet()
-        self.__idsLoginPost(idsLoginPostTickets,idsLoginPostExecution)
+        self.__idsLoginPost(idsLoginPostTickets, idsLoginPostExecution)
         self.__getTrueCookies()
+
+    def __pkcs7_padding(self, text):
+        """
+        pkcs7padding
+        :return: 补全后的text
+        """
+        if not isinstance(text, bytes):
+            text = text.encode()
+        padder_temp = padding.PKCS7(algorithms.AES.block_size).padder()
+        padded_data = padder_temp.update(text) + padder_temp.finalize()
+        return padded_data
+
+    def encrypt(self, text):
+        """
+        AES加密函数
+        使用AES 的 CBC加密方法加密
+        :return:
+        """
+        # key = 'VNJqWuK6zjeE3dl3'.encode('utf-8')
+        key = self.__pwdDefaultEncryptSalt.encode('utf-8')
+        mode = AES.MODE_CBC
+        iv = self.__rds(16).encode('utf-8')
+        text = self.__pkcs7_padding(self.__rds(64) + text)
+        cryptos = AES.new(key, mode, iv)
+        cipher_text = cryptos.encrypt(text)
+        return base64.b64encode(cipher_text)
+
+    def __rds(self, length):
+        """
+        填充函数，返回指定长度的字符串
+        :return:
+        """
+        _chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+        _chars_len = len(_chars)
+        retStr = ''
+        i = 0
+        while (i < length):
+            retStr += _chars[random.randint(0, _chars_len - 1)]
+            i += 1
+        return retStr
