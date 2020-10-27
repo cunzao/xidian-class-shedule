@@ -20,7 +20,7 @@
 pip install requests
 pip install beautifulsoup4
 pip install ics
-pip install cryptodemo
+pip install pycryptodome
 pip install cryptography
 
 git clone https://github.com/cunzao/xidian-class-shedule.git
